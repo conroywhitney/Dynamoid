@@ -123,6 +123,7 @@ module Dynamoid #:nodoc:
     end
 
     def load(attrs)
+      self.new_record = false
       self.class.undump(attrs).each {|key, value| send "#{key}=", value }
     end
 
