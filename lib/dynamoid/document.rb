@@ -20,7 +20,8 @@ module Dynamoid #:nodoc:
       #
       # @param [Hash] options options to pass for this table
       # @option options [Symbol] :name the name for the table; this still gets namespaced
-      # @option options [Symbol] :id id column for the table
+      # @option options [Symbol] :key hash key column for the table
+      # @option options [Symbol] :range_key range key column for the table
       # @option options [Integer] :read_capacity set the read capacity for the table; does not work on existing tables
       # @option options [Integer] :write_capacity set the write capacity for the table; does not work on existing tables
       #
@@ -48,6 +49,13 @@ module Dynamoid #:nodoc:
       # @since 0.4.0
       def hash_key
         options[:key] || :id
+      end
+
+      # Returns the range key field for this class.
+      #
+      # @since 0.5.1
+      def range_key
+        options[:range_key] || nil
       end
 
       # Initialize a new object and immediately save it to the database.
@@ -156,24 +164,23 @@ module Dynamoid #:nodoc:
       self.send("#{self.class.hash_key}=", value)
     end
 
+    # Return an object's range key, regardless of what it might be called to the object.
+    #
+    # @since 0.5.1
     def range_value
       if range_key = self.class.range_key
         self.send(range_key)
       end
     end
 
+    # Assign an object's range key, regardless of what it might be called to the object.
+    #
+    # @since 0.5.1
     def range_value=(value)
-      self.send("#{self.class.range_key}=", value)
-    end
-
-    def range_value
       if range_key = self.class.range_key
-        self.send(range_key)
+        self.send("#{range_key}=", value)
       end
     end
 
-    def range_value=(value)
-      self.send("#{self.class.range_key}=", value)
-    end
   end
 end
